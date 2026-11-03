@@ -53,9 +53,14 @@ const TOPICS = {
   },
 };
 
-const TOPIC_LABELS = Object.keys(TOPICS);
+// TODO: TEMPORARY -- sea creatures are switched off for now. With sea off,
+// there are exactly the 8 topics a session needs, so every child sees all 8.
+// To bring a topic back, remove it from this list (nothing else changes).
+const DISABLED_TOPICS = ["sea"];
 
-// Practice-trial images for the comprehension check (NOT part of the 9-topic
+const TOPIC_LABELS = Object.keys(TOPICS).filter((t) => !DISABLED_TOPICS.includes(t));
+
+// Practice-trial images for the comprehension check (NOT part of the topic
 // item pool -- these are separate, fixed practice stimuli from
 // materials/design.pptx). "ball" has no real image anywhere in the
 // materials yet, so it's a clearly-labeled placeholder; swap the file in

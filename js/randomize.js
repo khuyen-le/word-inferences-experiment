@@ -7,13 +7,21 @@ const COMPREHENSION_ITEMS = ["tree", "ball"]; // fixed order: tree (w/ feedback)
 
 // ---- Topic pairing -------------------------------------------------------
 
-// Randomly partitions the 9 topics into 4 pairs + 1 excluded topic, subject
+// Randomly partitions the enabled topics into 4 pairs (+ 1 excluded topic if 9 are enabled), subject
 // to the constraint that "sea" and "animal" never end up paired together.
+// A session uses 8 topics (4 trials x 2 topics). If more than 8 are enabled
+// (see DISABLED_TOPICS in items.js), the extra one is left out at random and
+// reported as excludedTopic; with exactly 8 enabled, excludedTopic is null.
+const TOPICS_PER_SESSION = 8;
+
 function generateTopicPairs(shuffle, maxAttempts = 200) {
+  if (TOPIC_LABELS.length < TOPICS_PER_SESSION) {
+    throw new Error(`generateTopicPairs: need ${TOPICS_PER_SESSION} enabled topics, have ${TOPIC_LABELS.length}`);
+  }
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const shuffled = shuffle(TOPIC_LABELS.slice());
-    const excludedTopic = shuffled[shuffled.length - 1];
-    const used = shuffled.slice(0, shuffled.length - 1); // 8 topics
+    const used = shuffled.slice(0, TOPICS_PER_SESSION);
+    const excludedTopic = shuffled.length > TOPICS_PER_SESSION ? shuffled[TOPICS_PER_SESSION] : null;
     const pairs = [];
     for (let i = 0; i < used.length; i += 2) {
       pairs.push([used[i], used[i + 1]]);

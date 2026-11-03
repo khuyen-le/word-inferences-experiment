@@ -34,7 +34,8 @@ node js/randomize.test.js
 
 ## Architecture
 
-- `js/items.js` -- the 9-topic, 4-easy/4-difficult word pool (from
+- `js/items.js` -- the 9-topic, 4-easy/4-difficult word pool (sea creatures
+  currently switched off via `DISABLED_TOPICS`, leaving 8) (from
   `word_list.docx`), plus `itemImagePath()` and the practice-trial image map.
 - `js/image-manifest.generated.js` -- auto-generated mapping from item slug
   (`"animal_tiger"`) to actual filename in `images/` (extensions vary: jpg,
@@ -122,7 +123,7 @@ directly to the Zenodo deposit connected to DataPipe experiment
 - **Parental survey** (the "possible exploratory" item in the design deck)
   is not implemented.
 - **Topic pairing randomization**: currently a uniform random pairing of the
-  9 topics (minus sea/animal), independently re-rolled per participant, with
+  enabled topics (currently 8, with sea switched off), independently re-rolled per participant, with
   no further counterbalancing constraint (e.g. no Latin-square balancing of
   which topics get excluded or which pairs become DC vs. SC across the
   sample). Flagged as "fully random, v1" in the original design discussion --

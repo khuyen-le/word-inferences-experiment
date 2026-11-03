@@ -63,7 +63,9 @@ for (let i = 0; i < N; i++) {
   assertEqual(allUsed.length, 8, "generateTopicPairs: 8 topics used");
   assertEqual(new Set(allUsed).size, 8, "generateTopicPairs: no topic reused across pairs");
   assert(!allUsed.includes(excludedTopic), "generateTopicPairs: excluded topic not reused");
-  assertEqual(new Set([...allUsed, excludedTopic]).size, 9, "generateTopicPairs: all 9 topics accounted for");
+  assertEqual(new Set(allUsed).size, 8, "generateTopicPairs: 8 distinct topics used");
+  assertEqual(allUsed.length + (excludedTopic ? 1 : 0), TOPIC_LABELS.length, "generateTopicPairs: all enabled topics accounted for");
+  assert(!allUsed.includes("sea"), "generateTopicPairs: disabled topic (sea) never used");
   const hasForbidden = pairs.some(([a, b]) => (a === "sea" && b === "animal") || (a === "animal" && b === "sea"));
   assert(!hasForbidden, "generateTopicPairs: sea/animal never paired");
 }
