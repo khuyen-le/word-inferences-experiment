@@ -228,6 +228,7 @@ function buildExperimentTimeline(design) {
       speaker: "experimenter",
       text: "Hi! Today we're going to play a naming game and watch some friends play too. Let's get started!",
     },
+    buttonLabel: "Start",
   });
 
   // ---- Comprehension check (with exclusion gate after trial 2) ----
