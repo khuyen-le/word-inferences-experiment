@@ -68,7 +68,16 @@ function run() {
   jsPsych.data.addProperties({ voice_by_character: JSON.stringify(design.voiceByCharacter) });
 
   const fullTimeline = [
-    // Researcher types the participant ID first. It's added to every row
+    // Load every image and recording first, so the study is ready by the
+    // time the researcher has typed the ID.
+    {
+      type: jsPsychPreload,
+      images: preloadImages,
+      audio: preloadAudio,
+      message: "Loading...",
+      continue_after_error: true, // placeholder art / MISSING_ images shouldn't block the whole study
+    },
+    // Researcher types the participant ID. It's added to every row
     // (participant_id) and used in the saved file's name, so any character
     // other than letters, numbers, "-" or "_" is replaced with "_".
     {
@@ -79,13 +88,6 @@ function run() {
         const id = String(data.response.participant_id).trim().replace(/[^A-Za-z0-9_-]/g, "_");
         jsPsych.data.addProperties({ participant_id: id });
       },
-    },
-    {
-      type: jsPsychPreload,
-      images: preloadImages,
-      audio: preloadAudio,
-      message: "Loading...",
-      continue_after_error: true, // placeholder art / MISSING_ images shouldn't block the whole study
     },
     ...experimentTimeline,
     // Last entry so the uploaded CSV includes every trial run above, plus the
