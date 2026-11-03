@@ -1,0 +1,221 @@
+:root {
+  --ink: #202124;
+  --muted: #5f6368;
+  --bg: #fafafa;
+  --panel: #ffffff;
+  --border: #dadce0;
+  --accent: #3f6fb4;
+  --accent-ink: #ffffff;
+  --good: #2e8b57;
+  --bad: #c0392b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+.jspsych-display-element {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wi-screen {
+  width: min(1100px, 94vw);
+  margin: 24px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+/* ---- Experimenter / character line text (plain, no bubble) ---- */
+.wi-line {
+  max-width: 62ch;
+  text-align: center;
+  font-size: 22px;
+  line-height: 1.5;
+  margin: 0;
+}
+.wi-line.experimenter {
+  color: var(--ink);
+  font-style: normal;
+}
+.wi-line.experimenter .wi-line-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.wi-line.character {
+  color: var(--ink);
+  font-style: italic;
+}
+.wi-line.character .wi-line-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+/* ---- Item image (no card/frame -- just the picture) ---- */
+.wi-item-image {
+  width: 260px;
+  height: 260px;
+  object-fit: contain;
+  flex: none;
+}
+
+/* ---- Characters row: [side column] -- (item image) -- [side column] ----
+   Each side column stacks that character's own row of item clones (grows
+   as the trial progresses) above that character, so the character always
+   stays grounded at the same baseline regardless of how many clones have
+   landed above it (align-items: flex-end on the row). ---- */
+/* The item image is bottom-aligned with the characters (the side columns have
+   the clone grid stacked above each character, so "center" would be thrown
+   off by that). Item and character pictures are about the same height, so
+   bottom-aligning them also lines up their vertical centers. */
+.wi-characters-row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 150px;
+  flex-wrap: wrap;
+}
+.wi-side-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.wi-character {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.45;
+  transition: opacity .2s ease, transform .2s ease;
+}
+.wi-character.active {
+  opacity: 1;
+}
+/* Fixed-size box for every character (the art varies a little in height), so
+   the layout is identical across trials; the art sits at the bottom of the box.
+   Same height as .wi-item-image, so the item is centered with the characters. */
+.wi-character img {
+  width: 140px;
+  height: 260px;
+  object-fit: contain;
+  object-position: center bottom;
+}
+.wi-character.clickable {
+  cursor: pointer;
+}
+.wi-character.clickable:hover {
+  transform: translateY(-4px);
+}
+.wi-character.clickable:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+/* ---- Continue button ---- */
+.wi-researcher-hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ---- Per-side clone grid (each character's own accumulating items) ----
+   2 columns so up to 4 demo items form a compact 2x2 grid instead of a tall
+   single-file column. Reserves `totalSlots` cells up front (see
+   renderSideRecapCellsHtml) via invisible placeholders of the same size, so
+   the grid's footprint never changes as real items fill in -- the character
+   below never gets pushed down mid-trial. ---- */
+.wi-recap-strip {
+  display: grid;
+  grid-template-columns: repeat(2, 88px);
+  gap: 10px;
+  justify-content: center;
+}
+.wi-recap-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 88px;
+}
+.wi-recap-item .wi-recap-thumb {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  transition: opacity 200ms ease;
+}
+.wi-recap-placeholder {
+  visibility: hidden;
+}
+.wi-recap-marks {
+  display: flex;
+  gap: 4px;
+}
+.wi-recap-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 17px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+.wi-recap-mark.yes { background: var(--good); }
+.wi-recap-mark.no { background: var(--bad); }
+
+/* ---- Feedback ---- */
+.wi-feedback {
+  font-size: 18px;
+  font-weight: 700;
+}
+.wi-feedback.correct { color: var(--good); }
+.wi-feedback.incorrect { color: var(--bad); }
+
+.wi-progress {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+
+/* Participant ID screen (researcher-facing, first screen of the session) */
+.wi-id-screen label { font-weight: 700; font-size: 18px; }
+.wi-id-screen input {
+  font-size: 18px;
+  padding: 8px 12px;
+  margin: 12px 0 4px;
+  width: 260px;
+  max-width: 100%;
+  text-align: center;
+}
+.wi-id-error { color: var(--bad); min-height: 1.4em; margin-bottom: 8px; }
+.wi-save-status { font-size: 16px; }
+
+/* Fixed layout slots (see renderLineSlot/renderButtonSlot in plugin-narration.js):
+   same height on every screen so nothing shifts between screen types. */
+.wi-line-slot { min-height: 33px; display: flex; align-items: center; justify-content: center; }
+.wi-line-slot .wi-line { margin: 0; }
+.wi-button-slot { display: flex; justify-content: center; }
+.wi-btn-placeholder { visibility: hidden; pointer-events: none; }

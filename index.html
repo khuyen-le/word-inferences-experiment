@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Word Inferences</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jspsych@8/css/jspsych.css">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/jspsych@8/dist/index.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@jspsych/plugin-preload@2/dist/index.browser.min.js"></script>
+  <!-- DataPipe (-> Zenodo) data submission -- see js/datapipe.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@jspsych-contrib/plugin-pipe@0.6.0/dist/index.browser.min.js"></script>
+</head>
+<body>
+  <!-- Data (word pools, image manifest, character pools) -->
+  <script src="js/image-manifest.generated.js"></script>
+  <script src="js/items.js"></script>
+  <script src="js/characters.js"></script>
+  <script src="js/audio-manifest.generated.js"></script>
+  <script src="js/speakers.js"></script> <!-- TODO: temporary 5-speaker voice setup, see file -->
+
+  <!-- jsPsych init must come before plugins / randomize.js / timeline.js,
+       since randomize.js's generateParticipantDesign() and characters.js's
+       makeNonRepeatingPairs() are called with jsPsych.randomization.shuffle
+       (passed in explicitly from main.js), and the custom plugins reference
+       the jsPsych instance passed to their constructor -- not globals -- so
+       load order here just needs definitions-before-use. -->
+  <script src="js/randomize.js"></script>
+
+  <!-- Custom plugins -->
+  <script src="js/plugin-narration.js"></script>
+  <script src="js/plugin-choice.js"></script>
+  <script src="js/plugin-item-reveal.js"></script>
+  <script src="js/plugin-participant-id.js"></script>
+
+  <!-- Timeline assembly + run -->
+  <script src="js/timeline.js"></script>
+  <script src="js/datapipe.js"></script>
+  <script src="js/save-backup.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

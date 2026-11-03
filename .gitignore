@@ -1,0 +1,4 @@
+# Local test data and system files (not part of the experiment)
+data/
+__pycache__/
+.DS_Store
