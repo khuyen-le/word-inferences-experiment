@@ -21,6 +21,7 @@ const jsPsych = initJsPsych({
 function collectAllImagePaths(design) {
   const images = new Set();
   Object.values(COMPREHENSION_IMAGES).forEach((p) => images.add(p));
+  images.add(BLANK_IMAGE);
   design.comprehensionTrials.forEach((c) => {
     images.add(c.characters.left);
     images.add(c.characters.right);
@@ -68,6 +69,13 @@ function run() {
   jsPsych.data.addProperties({ voice_by_character: JSON.stringify(design.voiceByCharacter) });
 
   const fullTimeline = [
+    // First screen: audio check + switch the browser to full screen.
+    {
+      type: jsPsychFullscreen,
+      fullscreen_mode: true,
+      message: "<p>Please check that audio is turned on, and click the below button to enter full screen</p>",
+      button_label: "Enter full screen",
+    },
     // Load every image and recording first, so the study is ready by the
     // time the researcher has typed the ID.
     {

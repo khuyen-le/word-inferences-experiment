@@ -83,6 +83,8 @@ random for each child. The script is the same for both.
 4. Right character speaks (audio).
 5. Response to the right character (same as step 3).
 
+**Break: a blank card appears where the item was.** Click Continue to start the test.
+
 **Test: 4 items, each as follows. The child clicks a character. No feedback.**
 > Who knows what this is called?
 

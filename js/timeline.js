@@ -203,6 +203,19 @@ function buildCriticalTrialTimeline(trial, trialIndex, voiceByCharacter) {
     recap = newRecap;
   });
 
+  // ---- Break between demonstration and test ----
+  // Same scene (characters + their answer grids), with a blank card where
+  // the item was. The researcher clicks Continue to start the test phase.
+  timeline.push({
+    type: NarrationPlugin,
+    progressLabel,
+    characters,
+    itemImage: BLANK_IMAGE,
+    recapItems: recap,
+    line: null,
+    data: { phase: "demo_to_test", condition, topics, critical_trial_index: trialNumber },
+  });
+
   // ---- Test phase ----
   const roles = rolesForCriticalTrial(trial);
   trial.testItems.forEach((item, i) => {

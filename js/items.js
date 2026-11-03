@@ -70,6 +70,10 @@ const COMPREHENSION_IMAGES = {
   ball: "images/comprehension_ball.png",
 };
 
+// Shown in the item's place on the screen between the demonstration and the
+// test phase of each critical trial.
+const BLANK_IMAGE = "images/blank.png";
+
 function itemImagePath(label, item) {
   const slug = `${label}_${item}`;
   const filename = IMAGE_MANIFEST[slug];
