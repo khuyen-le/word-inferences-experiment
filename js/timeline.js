@@ -15,7 +15,7 @@ function capitalize(s) {
 // `recapSoFar` is the list of already-completed items in this trial (shown
 // fully-formed, no animation); the function returns that list with this
 // item appended, for the caller to pass into the next item's call.
-function buildDemoItemTrial(item, characters, recapSoFar, progressLabel, voices) {
+function buildDemoItemTrial(item, characters, recapSoFar, progressLabel, voices, extraData) {
   const itemImage = itemImagePath(item.topic, item.word);
   const article = articleFor(item.word);
 
@@ -42,6 +42,19 @@ function buildDemoItemTrial(item, characters, recapSoFar, progressLabel, voices)
     recapSoFar,
     totalItemsInTrial: 4,
     voices,
+    // Saved on this trial's data row: which item was demonstrated and what
+    // each character answered ("knows" = named it, "doesnt_know" = said
+    // "I don't know what this is called.").
+    data: {
+      ...extraData,
+      topic: item.topic,
+      difficulty: item.difficulty,
+      word: item.word,
+      left_knows: item.leftKnows,
+      right_knows: item.rightKnows,
+      left_answer: item.leftKnows ? "knows" : "doesnt_know",
+      right_answer: item.rightKnows ? "knows" : "doesnt_know",
+    },
   };
 
   const newRecap = recapSoFar.concat([{ image: itemImage, leftKnows: item.leftKnows, rightKnows: item.rightKnows }]);
@@ -159,7 +172,8 @@ function buildCriticalTrialTimeline(trial, trialIndex, voiceByCharacter) {
   const timeline = [];
   const { characters, condition, topics, gender } = trial;
   const voices = voicesFor(characters, voiceByCharacter);
-  const progressLabel = `Critical trial ${trialIndex + 1} of 4 (${condition})`;
+  const trialNumber = trialIndex + 1; // saved as critical_trial_index (1-4)
+  const progressLabel = `Critical trial ${trialNumber} of 4 (${condition})`;
   const peopleWord = gender === "girl" ? "girls" : "boys";
 
   const introText =
@@ -182,7 +196,8 @@ function buildCriticalTrialTimeline(trial, trialIndex, voiceByCharacter) {
       characters,
       recap,
       `${progressLabel} - demo item ${i + 1} of 4`,
-      voices
+      voices,
+      { phase: "demo", condition, topics, critical_trial_index: trialNumber, demo_item_index: i + 1 }
     );
     timeline.push(itemTrial);
     recap = newRecap;
@@ -211,7 +226,8 @@ function buildCriticalTrialTimeline(trial, trialIndex, voiceByCharacter) {
         right_role: roles.right,
         left_speaker: voices.left,
         right_speaker: voices.right,
-        critical_trial_index: trialIndex,
+        critical_trial_index: trialNumber,
+        test_item_index: i + 1,
       },
     });
   });
