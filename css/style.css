@@ -200,17 +200,6 @@ html, body {
   text-transform: uppercase;
 }
 
-/* Participant ID screen (researcher-facing, first screen of the session) */
-.wi-id-screen label { font-weight: 700; font-size: 18px; }
-.wi-id-screen input {
-  font-size: 18px;
-  padding: 8px 12px;
-  margin: 12px 0 4px;
-  width: 260px;
-  max-width: 100%;
-  text-align: center;
-}
-.wi-id-error { color: var(--bad); min-height: 1.4em; margin-bottom: 8px; }
 .wi-save-status { font-size: 16px; }
 
 /* Fixed layout slots (see renderLineSlot/renderButtonSlot in plugin-narration.js):

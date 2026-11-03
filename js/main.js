@@ -68,8 +68,18 @@ function run() {
   jsPsych.data.addProperties({ voice_by_character: JSON.stringify(design.voiceByCharacter) });
 
   const fullTimeline = [
-    // Researcher types the participant ID first (sets participant_id on all data).
-    { type: ParticipantIdPlugin },
+    // Researcher types the participant ID first. It's added to every row
+    // (participant_id) and used in the saved file's name, so any character
+    // other than letters, numbers, "-" or "_" is replaced with "_".
+    {
+      type: jsPsychSurveyText,
+      questions: [{ prompt: "Participant ID", name: "participant_id", required: true }],
+      button_label: "Start",
+      on_finish: (data) => {
+        const id = String(data.response.participant_id).trim().replace(/[^A-Za-z0-9_-]/g, "_");
+        jsPsych.data.addProperties({ participant_id: id });
+      },
+    },
     {
       type: jsPsychPreload,
       images: preloadImages,
