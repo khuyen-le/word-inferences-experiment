@@ -69,11 +69,26 @@ function stopLineAudio() {
   }
 }
 
-function playLineAudio(src) {
+// `onDone` (optional) runs once when the line has finished playing -- or right
+// away if there's no recording or it can't be played, so the session never
+// gets stuck waiting on audio.
+function playLineAudio(src, onDone) {
   stopLineAudio();
-  if (!src) return;
-  currentLineAudio = new Audio(src);
-  currentLineAudio.play().catch((err) => console.warn(`[audio] Could not play ${src}:`, err));
+  let called = false;
+  const done = () => {
+    if (called) return;
+    called = true;
+    if (onDone) onDone();
+  };
+  if (!src) return done();
+  const audio = new Audio(src);
+  currentLineAudio = audio;
+  audio.addEventListener("ended", done, { once: true });
+  audio.addEventListener("error", done, { once: true });
+  audio.play().catch((err) => {
+    console.warn(`[audio] Could not play ${src}:`, err);
+    done();
+  });
 }
 
 // No dialogue text is shown to participants:

@@ -78,6 +78,16 @@ class ItemRevealPlugin {
       lineSlot.innerHTML = renderLine(line);
     }
 
+    // Continue stays disabled while a character's line is playing, so the
+    // researcher can't skip ahead before the child has heard it.
+    const continueBtn = document.getElementById("wi-continue-btn");
+    function playLineThenEnableContinue(audioFile) {
+      continueBtn.disabled = true;
+      playLineAudio(audioFile, () => {
+        continueBtn.disabled = false;
+      });
+    }
+
     // Morphs `side`'s next placeholder cell into a real one (same cell, same
     // grid position -- no new cell is appended, so nothing reflows), fills
     // in that side's mark -- fully known immediately, no "pending" state
@@ -108,7 +118,7 @@ class ItemRevealPlugin {
       } else if (step === "left-line") {
         setActiveSide("left");
         setLine({ speaker: "character", side: "left", text: trial.leftLine.text, audioFile: trial.leftLine.audioFile });
-        playLineAudio(trial.leftLine.audioFile);
+        playLineThenEnableContinue(trial.leftLine.audioFile);
       } else if (step === "left-ack") {
         // The fly animation runs after the character has spoken, not at the
         // same moment their line appears -- it accompanies the
@@ -119,7 +129,7 @@ class ItemRevealPlugin {
       } else if (step === "right-line") {
         setActiveSide("right");
         setLine({ speaker: "character", side: "right", text: trial.rightLine.text, audioFile: trial.rightLine.audioFile });
-        playLineAudio(trial.rightLine.audioFile);
+        playLineThenEnableContinue(trial.rightLine.audioFile);
       } else if (step === "right-ack") {
         setActiveSide("right");
         setLine({ speaker: "experimenter", text: trial.rightAck.text });
