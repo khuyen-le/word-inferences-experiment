@@ -9,6 +9,7 @@
 class ChoicePlugin {
   static info = {
     name: "wi-choice",
+    version: "1.0.0",
     parameters: {
       promptLine: { type: "OBJECT", default: null }, // { speaker: 'experimenter', text }
       itemImage: { type: "STRING", default: null },
@@ -20,6 +21,12 @@ class ChoicePlugin {
       // (e.g. topic/difficulty/condition/role-per-side), so analysis scripts
       // don't have to re-derive them from the design object.
       meta: { type: "OBJECT", default: {} },
+    },
+    // Fields this plugin saves on its data row, plus everything in `meta`.
+    data: {
+      rt: { type: jsPsychModule.ParameterType.INT },
+      chosen_side: { type: jsPsychModule.ParameterType.STRING },
+      choice_rt: { type: jsPsychModule.ParameterType.INT },
     },
   };
 
@@ -56,6 +63,9 @@ class ChoicePlugin {
       if (answered) return;
       answered = true;
       choiceRt.value = performance.now() - startTime;
+      // Hide the cursor so it isn't left resting on the character just picked
+      // (see hideCursorNow in main.js).
+      if (typeof hideCursorNow === "function") hideCursorNow();
 
       document.getElementById("wi-char-left").classList.toggle("active", side === "left");
       document.getElementById("wi-char-right").classList.toggle("active", side === "right");

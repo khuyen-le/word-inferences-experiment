@@ -18,6 +18,7 @@
 class ItemRevealPlugin {
   static info = {
     name: "wi-item-reveal",
+    version: "1.0.0",
     parameters: {
       itemImage: { type: "STRING", default: null },
       characters: { type: "OBJECT", default: null }, // { left, right }
@@ -32,6 +33,15 @@ class ItemRevealPlugin {
       totalItemsInTrial: { type: "INT", default: 4 }, // reserves this many grid slots up front (see renderSideRecapCellsHtml)
       progressLabel: { type: "STRING", default: null },
       voices: { type: "OBJECT", default: null }, // { left, right } speaker IDs, logged in the data
+    },
+    // Fields this plugin saves on its data row (the demo-item details --
+    // topic, word, answers, etc. -- come from the trial's `data` in timeline.js).
+    data: {
+      rt: { type: jsPsychModule.ParameterType.INT },
+      left_speaker: { type: jsPsychModule.ParameterType.STRING },
+      right_speaker: { type: jsPsychModule.ParameterType.STRING },
+      left_audio: { type: jsPsychModule.ParameterType.STRING },
+      right_audio: { type: jsPsychModule.ParameterType.STRING },
     },
   };
 

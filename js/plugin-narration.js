@@ -8,6 +8,7 @@
 class NarrationPlugin {
   static info = {
     name: "wi-narration",
+    version: "1.0.0",
     parameters: {
       line: { type: "OBJECT", default: null }, // { speaker: 'experimenter'|'character', text, side: 'left'|'right'|null, audioFile: string|null }
       itemImage: { type: "STRING", default: null },
@@ -16,6 +17,12 @@ class NarrationPlugin {
       recapItems: { type: "OBJECT", default: null }, // array of { image, leftKnows, rightKnows }
       progressLabel: { type: "STRING", default: null },
       buttonLabel: { type: "STRING", default: "Continue" },
+    },
+    // Fields this plugin saves on its data row.
+    data: {
+      rt: { type: jsPsychModule.ParameterType.INT },
+      line_speaker: { type: jsPsychModule.ParameterType.STRING },
+      line_text: { type: jsPsychModule.ParameterType.STRING },
     },
   };
 

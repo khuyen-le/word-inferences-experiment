@@ -1,8 +1,7 @@
 # Experimenter script
 
 Nothing below is shown on screen. The researcher reads these lines aloud and
-presses the **spacebar** to move to the next screen (this replaces the
-Continue / Start / Finish buttons; see `ADVANCE_WITH_SPACEBAR` in `js/main.js`). Characters' lines play as audio.
+clicks **Continue** to move to the next screen. Characters' lines play as audio.
 
 The wording here matches the `text` saved in the data (`line_text` column) and
 is defined in `js/timeline.js`. If you change the wording, change it in both
@@ -27,6 +26,8 @@ Downloads folder -- keep that file.
 ## 1. Welcome
 
 > Hi! Today we're going to play a naming game and watch some friends play too. Let's get started!
+
+Click **Start**.
 
 ---
 
@@ -53,7 +54,7 @@ Downloads folder -- keep that file.
   1. *Who doesn't know that this is a ball?*
   2. *Who knows that this is a ball?*
 
-**Feedback (trial 1 / tree only).** After the child clicks, give feedback, then press the spacebar:
+**Feedback (trial 1 / tree only).** After the child clicks, give feedback, then click Continue:
 - correct: *That's right!*
 - incorrect: *Not quite -- let's remember that for next time!*
 
@@ -61,7 +62,7 @@ Trial 2 (ball) has no feedback; the screen advances as soon as the child clicks.
 
 **After trial 2:**
 - If both ball questions were answered correctly: *Great! Now let's watch some more friends play.*
-- Otherwise the session ends: *Thank you so much for playing with us today!* (press the spacebar; the data is then uploaded)
+- Otherwise the session ends: *Thank you so much for playing with us today!* (click **Finish**; the data is then uploaded)
 
 ---
 
@@ -84,7 +85,7 @@ random for each child. The script is the same for both.
 4. Right character speaks (audio).
 5. Response to the right character (same as step 3).
 
-**Break: a blank card appears where the item was.** Press the spacebar to start the test.
+**Break: a blank card appears where the item was.** Click Continue to start the test.
 
 **Test: 4 items, each as follows. The child clicks a character. No feedback.**
 > Who knows what this is called?
@@ -95,5 +96,5 @@ random for each child. The script is the same for both.
 
 > Thank you so much for playing with us today!
 
-Press the spacebar. The data uploads and the screen says "Data saved" (or, if
+Click **Finish**. The data uploads and the screen says "Data saved" (or, if
 the upload failed, that a copy was downloaded instead).

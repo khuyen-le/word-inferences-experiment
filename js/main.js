@@ -18,43 +18,40 @@ const jsPsych = initJsPsych({
   on_finish: () => confirmOrBackupSave(),
 });
 
-// ---- Spacebar advance ----
-// true: the researcher presses the SPACEBAR to move on (the Continue / Start /
-// Finish button is hidden, but its space on screen is kept so nothing moves).
-// false: the researcher clicks the button instead.
-// Either way, the same rules apply: e.g. it doesn't work while a character's
-// audio is still playing.
-const ADVANCE_WITH_SPACEBAR = true;
-
-if (ADVANCE_WITH_SPACEBAR) {
-  document.body.classList.add("wi-space-mode");
-  document.addEventListener("keydown", (e) => {
-    if (e.code !== "Space" && e.key !== " ") return;
-    const tag = (e.target && e.target.tagName) || "";
-    if (tag === "INPUT" || tag === "TEXTAREA") return; // typing the participant ID
-    e.preventDefault(); // no page scroll / no pressing whatever button has focus
-    if (e.repeat) return; // holding the key down only advances once
-    const btn = document.getElementById("wi-continue-btn");
-    if (btn && !btn.disabled) btn.click();
-  });
-}
-
-// ---- Hide the mouse cursor when it isn't moving ----
-// After CURSOR_HIDE_AFTER_MS without mouse movement the cursor disappears; it
-// comes back as soon as the mouse moves. Clicks still work while it's hidden.
-// Set to 0 to always show the cursor.
+// ---- Hiding the mouse cursor ----
+// 1. After CURSOR_HIDE_AFTER_MS without mouse movement the cursor disappears
+//    (set to 0 to turn this off).
+// 2. hideCursorNow() hides it right away -- called when the child clicks a
+//    character (plugin-choice.js), so the cursor isn't left sitting on the
+//    character they just picked, cueing them to pick it again.
+// Either way it comes back once the mouse moves more than CURSOR_SHOW_DISTANCE_PX
+// (so a tiny wobble during the click doesn't bring it straight back).
+// Clicks still work while the cursor is hidden.
 const CURSOR_HIDE_AFTER_MS = 2000;
+const CURSOR_SHOW_DISTANCE_PX = 15;
 
-if (CURSOR_HIDE_AFTER_MS > 0) {
-  let cursorTimer = null;
-  const showCursorThenHideLater = () => {
-    document.body.classList.remove("wi-cursor-hidden");
-    clearTimeout(cursorTimer);
-    cursorTimer = setTimeout(() => document.body.classList.add("wi-cursor-hidden"), CURSOR_HIDE_AFTER_MS);
-  };
-  document.addEventListener("mousemove", showCursorThenHideLater);
-  showCursorThenHideLater();
+let cursorTimer = null;
+let cursorAnchor = null; // where the mouse was when the cursor was hidden
+let lastMouse = null;
+
+function hideCursorNow() {
+  clearTimeout(cursorTimer);
+  document.body.classList.add("wi-cursor-hidden");
+  cursorAnchor = lastMouse;
 }
+
+document.addEventListener("mousemove", (e) => {
+  lastMouse = { x: e.clientX, y: e.clientY };
+  if (document.body.classList.contains("wi-cursor-hidden")) {
+    if (cursorAnchor && Math.hypot(e.clientX - cursorAnchor.x, e.clientY - cursorAnchor.y) < CURSOR_SHOW_DISTANCE_PX) {
+      return; // small wobble: stay hidden
+    }
+    document.body.classList.remove("wi-cursor-hidden");
+    cursorAnchor = null;
+  }
+  clearTimeout(cursorTimer);
+  if (CURSOR_HIDE_AFTER_MS > 0) cursorTimer = setTimeout(hideCursorNow, CURSOR_HIDE_AFTER_MS);
+});
 
 function collectAllImagePaths(design) {
   const images = new Set();

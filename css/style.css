@@ -209,9 +209,6 @@ html, body {
 .wi-button-slot { display: flex; justify-content: center; }
 .wi-btn-placeholder { visibility: hidden; pointer-events: none; }
 
-/* Spacebar mode (ADVANCE_WITH_SPACEBAR in js/main.js): hide the researcher's
-   Continue/Start/Finish button but keep its space, so the layout is unchanged. */
-.wi-space-mode #wi-continue-btn { visibility: hidden; }
 
 /* Cursor hidden while the mouse is idle (CURSOR_HIDE_AFTER_MS in js/main.js). */
 body.wi-cursor-hidden,
