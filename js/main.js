@@ -18,6 +18,44 @@ const jsPsych = initJsPsych({
   on_finish: () => confirmOrBackupSave(),
 });
 
+// ---- Spacebar advance ----
+// true: the researcher presses the SPACEBAR to move on (the Continue / Start /
+// Finish button is hidden, but its space on screen is kept so nothing moves).
+// false: the researcher clicks the button instead.
+// Either way, the same rules apply: e.g. it doesn't work while a character's
+// audio is still playing.
+const ADVANCE_WITH_SPACEBAR = true;
+
+if (ADVANCE_WITH_SPACEBAR) {
+  document.body.classList.add("wi-space-mode");
+  document.addEventListener("keydown", (e) => {
+    if (e.code !== "Space" && e.key !== " ") return;
+    const tag = (e.target && e.target.tagName) || "";
+    if (tag === "INPUT" || tag === "TEXTAREA") return; // typing the participant ID
+    e.preventDefault(); // no page scroll / no pressing whatever button has focus
+    if (e.repeat) return; // holding the key down only advances once
+    const btn = document.getElementById("wi-continue-btn");
+    if (btn && !btn.disabled) btn.click();
+  });
+}
+
+// ---- Hide the mouse cursor when it isn't moving ----
+// After CURSOR_HIDE_AFTER_MS without mouse movement the cursor disappears; it
+// comes back as soon as the mouse moves. Clicks still work while it's hidden.
+// Set to 0 to always show the cursor.
+const CURSOR_HIDE_AFTER_MS = 2000;
+
+if (CURSOR_HIDE_AFTER_MS > 0) {
+  let cursorTimer = null;
+  const showCursorThenHideLater = () => {
+    document.body.classList.remove("wi-cursor-hidden");
+    clearTimeout(cursorTimer);
+    cursorTimer = setTimeout(() => document.body.classList.add("wi-cursor-hidden"), CURSOR_HIDE_AFTER_MS);
+  };
+  document.addEventListener("mousemove", showCursorThenHideLater);
+  showCursorThenHideLater();
+}
+
 function collectAllImagePaths(design) {
   const images = new Set();
   Object.values(COMPREHENSION_IMAGES).forEach((p) => images.add(p));
