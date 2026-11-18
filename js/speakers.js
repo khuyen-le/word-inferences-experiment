@@ -52,16 +52,15 @@ function assignVoices(pairs, shuffle) {
 }
 
 // TODO: TEMPORARY FIX FOR MISSING RECORDINGS -- remove once every speaker has
-// recorded every word. A word that ANY speaker in BOY_SPEAKERS/GIRL_SPEAKERS
-// is missing a recording for is never used as a demo item (the only items the
-// characters say out loud), so a missing recording is never needed. Such words
-// can still appear as test items, which have no character audio. Currently
-// this affects (see audio/): kitchen_sieve (Speaker3), vehicle_bicycle and
-// kitchen_knife (Speaker4), animal_monkey (Speaker5).
-// Once nothing is missing, this returns true for every word and has no effect.
-function hasAllRecordings(topic, word) {
+// recorded every word. Used when sampling demo items (randomize.js): a word is
+// only used as a demo item in a trial if every speaker who will NAME it in that
+// trial has a recording of it. Speakers who answer "I don't know" don't need
+// it, and other speakers/trials can still use the word. So a missing recording
+// only removes that word for that one speaker. Test items have no character
+// audio, so they're unaffected. Once nothing is missing, this is always true.
+function hasRecordings(speakers, topic, word) {
   const key = `${topic}_${word}`;
-  return BOY_SPEAKERS.concat(GIRL_SPEAKERS).every((s) => AUDIO_MANIFEST[s] && AUDIO_MANIFEST[s][key]);
+  return speakers.every((s) => AUDIO_MANIFEST[s] && AUDIO_MANIFEST[s][key]);
 }
 
 // Path to a speaker's recording of `lineKey` (e.g. "animal_tiger",

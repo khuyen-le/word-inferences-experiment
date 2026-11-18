@@ -392,7 +392,6 @@ const AUDIO_MANIFEST = {
     "vehicle_chariot": "Speaker5_g_vehicle_chariot.mp3",
     "vehicle_gondola": "Speaker5_g_vehicle_gondola.mp3",
     "vehicle_plane": "Speaker5_g_vehicle_plane.mp3",
-    "vehicle_ship": "Speaker5_g_vehicle_ship.mp3",
     "vehicle_train": "Speaker5_g_vehicle_train.mp3",
     "vehicle_tram": "Speaker5_g_vehicle_tram.mp3"
   }

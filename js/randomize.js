@@ -50,20 +50,24 @@ function assignConditions(pairs, shuffle) {
 
 // From one topic's pool of 4 easy + 4 difficult words, samples 2 of each
 // (without replacement) and splits them into a demo item and a test item.
-// TODO: TEMPORARY -- demo items are restricted to words every speaker has a
-// recording of (hasAllRecordings in speakers.js); test items can be any
-// other word. Once all recordings exist this restriction does nothing.
-function sampleItemsForTopic(topicLabel, shuffle) {
+// TODO: TEMPORARY -- `namersFor(difficulty)` returns the speaker IDs who will
+// name that demo item out loud; the demo word is restricted to words all of
+// them have a recording of (hasRecordings in speakers.js). Test items can be
+// any other word. Once all recordings exist this restriction does nothing.
+function sampleItemsForTopic(topicLabel, shuffle, namersFor = () => []) {
   const topic = TOPICS[topicLabel];
-  const pickDemoAndTest = (words) => {
+  const pickDemoAndTest = (words, difficulty) => {
     const shuffled = shuffle(words.slice());
-    const demo = shuffled.find((w) => hasAllRecordings(topicLabel, w));
-    if (!demo) throw new Error(`sampleItemsForTopic: no ${topicLabel} word has recordings from every speaker`);
+    const namers = namersFor(difficulty);
+    const demo = shuffled.find((w) => hasRecordings(namers, topicLabel, w));
+    if (!demo) {
+      throw new Error(`sampleItemsForTopic: no ${difficulty} ${topicLabel} word has recordings from ${namers.join(", ")}`);
+    }
     const test = shuffled.find((w) => w !== demo);
     return [demo, test];
   };
-  const [demoEasy, testEasy] = pickDemoAndTest(topic.easy);
-  const [demoDifficult, testDifficult] = pickDemoAndTest(topic.difficult);
+  const [demoEasy, testEasy] = pickDemoAndTest(topic.easy, "easy");
+  const [demoDifficult, testDifficult] = pickDemoAndTest(topic.difficult, "difficult");
   return {
     demo: { easy: demoEasy, difficult: demoDifficult },
     test: { easy: testEasy, difficult: testDifficult },
@@ -72,17 +76,30 @@ function sampleItemsForTopic(topicLabel, shuffle) {
 
 // ---- Critical trial construction -----------------------------------------
 
+// Which "role" names a demo item, given the condition:
+// - difficulty-contrast: the primary side names all 4 items; the other side
+//   names only the 2 easy items and fails both difficult items.
+// - superordinate-contrast: both name the easy items; the primary side owns
+//   topicA's difficult item (fails topicB's), the other side is the mirror.
+function roleKnowledge(condition, topic, difficulty, topicA) {
+  if (difficulty === "easy") return { primaryKnows: true, otherKnows: true };
+  if (condition === "difficulty-contrast") return { primaryKnows: true, otherKnows: false };
+  return topic === topicA
+    ? { primaryKnows: true, otherKnows: false }
+    : { primaryKnows: false, otherKnows: true };
+}
+
 // Builds the demo + test item lists for one critical trial, including which
 // side (left/right character) succeeds on each demo item.
 // `primarySide` ('left' | 'right') fixes which side plays the "primary" role
 // (in Difficulty-Contrast: the speaker who knows MORE, i.e. names the difficult
 // items too). If omitted, it's random.
-function buildCriticalTrial(topicsAndCondition, characterAssignment, shuffle, primarySide) {
+// `voiceByCharacter` (character image -> speaker ID) is used to pick demo
+// words the naming speaker has recorded; if omitted, no restriction.
+function buildCriticalTrial(topicsAndCondition, characterAssignment, shuffle, primarySide, voiceByCharacter = {}) {
   const { topics, condition } = topicsAndCondition;
   const { gender, pair } = characterAssignment;
   const [topicA, topicB] = topics;
-  const sampledA = sampleItemsForTopic(topicA, shuffle);
-  const sampledB = sampleItemsForTopic(topicB, shuffle);
 
   // Randomize which concrete character image sits on the left vs. right.
   const [leftChar, rightChar] = shuffle(pair.slice());
@@ -90,52 +107,30 @@ function buildCriticalTrial(topicsAndCondition, characterAssignment, shuffle, pr
   // Which side plays which role: given (counterbalanced by the caller), or random.
   const leftIsPrimary = primarySide ? primarySide === "left" : shuffle([true, false])[0];
 
-  const demoItemsRaw = [
-    { topic: topicA, difficulty: "easy", word: sampledA.demo.easy },
-    { topic: topicA, difficulty: "difficult", word: sampledA.demo.difficult },
-    { topic: topicB, difficulty: "easy", word: sampledB.demo.easy },
-    { topic: topicB, difficulty: "difficult", word: sampledB.demo.difficult },
-  ];
+  const knowsFor = (topic, difficulty) => {
+    const { primaryKnows, otherKnows } = roleKnowledge(condition, topic, difficulty, topicA);
+    return {
+      leftKnows: leftIsPrimary ? primaryKnows : otherKnows,
+      rightKnows: leftIsPrimary ? otherKnows : primaryKnows,
+    };
+  };
 
-  let demoItems;
-  if (condition === "difficulty-contrast") {
-    // One speaker (the "primary" side) names all 4 items; the other names
-    // only the 2 easy items and fails both difficult items.
-    demoItems = demoItemsRaw.map((item) => {
-      const primaryKnows = true;
-      const otherKnows = item.difficulty === "easy";
-      return {
-        ...item,
-        leftKnows: leftIsPrimary ? primaryKnows : otherKnows,
-        rightKnows: leftIsPrimary ? otherKnows : primaryKnows,
-      };
-    });
-  } else {
-    // superordinate-contrast: the "primary" side owns topicA's difficult item (and
-    // knows both easy items, and topicB's... no, it FAILS topicB's difficult
-    // item); the other side is the mirror image, owning topicB.
-    demoItems = demoItemsRaw.map((item) => {
-      let primaryKnows;
-      let otherKnows;
-      if (item.difficulty === "easy") {
-        primaryKnows = true;
-        otherKnows = true;
-      } else if (item.topic === topicA) {
-        primaryKnows = true;
-        otherKnows = false;
-      } else {
-        // item.topic === topicB
-        primaryKnows = false;
-        otherKnows = true;
-      }
-      return {
-        ...item,
-        leftKnows: leftIsPrimary ? primaryKnows : otherKnows,
-        rightKnows: leftIsPrimary ? otherKnows : primaryKnows,
-      };
-    });
-  }
-  demoItems = shuffle(demoItems);
+  // Speakers who will say each demo item out loud (for the recording check).
+  const namersFor = (topic) => (difficulty) => {
+    const { leftKnows, rightKnows } = knowsFor(topic, difficulty);
+    return [leftKnows && voiceByCharacter[leftChar], rightKnows && voiceByCharacter[rightChar]].filter(Boolean);
+  };
+  const sampledA = sampleItemsForTopic(topicA, shuffle, namersFor(topicA));
+  const sampledB = sampleItemsForTopic(topicB, shuffle, namersFor(topicB));
+
+  const demoItems = shuffle(
+    [
+      { topic: topicA, difficulty: "easy", word: sampledA.demo.easy },
+      { topic: topicA, difficulty: "difficult", word: sampledA.demo.difficult },
+      { topic: topicB, difficulty: "easy", word: sampledB.demo.easy },
+      { topic: topicB, difficulty: "difficult", word: sampledB.demo.difficult },
+    ].map((item) => ({ ...item, ...knowsFor(item.topic, item.difficulty) }))
+  );
 
   const testItems = shuffle([
     { topic: topicA, difficulty: "easy", word: sampledA.test.easy },
@@ -192,7 +187,7 @@ function generateParticipantDesign(shuffle) {
   let dcIndex = 0;
   const builtTrials = trialConditions.map((tc, i) => {
     const primarySide = tc.condition === "difficulty-contrast" ? dcPrimarySides[dcIndex++] : undefined;
-    return buildCriticalTrial(tc, criticalPairs[i], shuffle, primarySide);
+    return buildCriticalTrial(tc, criticalPairs[i], shuffle, primarySide, voiceByCharacter);
   });
 
   // Blocked by condition: both Difficulty-Contrast trials together and both

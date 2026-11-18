@@ -215,12 +215,12 @@ for (let i = 0; i < 500; i++) {
     .sort();
   assertEqual(dcMoreSides, ["left", "right"], "counterbalance: DC more-knowledgeable speaker on left once and right once");
 
-  // Every line a character says has a recording from that character's speaker.
+  // Every demo item a character names has a recording from that character's speaker.
   const AUDIO_MANIFEST = vm.runInContext("AUDIO_MANIFEST", context);
   design.criticalTrials.forEach((t) => {
     t.demoItems.forEach((it) => {
-      [t.characters.left, t.characters.right].forEach((c) => {
-        const s = design.voiceByCharacter[c];
+      [["left", it.leftKnows], ["right", it.rightKnows]].filter(([, knows]) => knows).forEach(([side]) => {
+        const s = design.voiceByCharacter[t.characters[side]];
         assert(AUDIO_MANIFEST[s][`${it.topic}_${it.word}`], `audio: ${s} has a recording of demo item ${it.topic}_${it.word}`);
       });
     });
